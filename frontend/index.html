@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,12 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f766e">
   <title>Civic360 | Your Voice, Your City</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
+
 <body>
   <header class="topbar">
     <a class="brand" href="#" aria-label="Civic360 home">
@@ -38,6 +42,7 @@
           <span><span class="check-icon">✓</span> Location aware</span>
         </div>
       </div>
+
       <div class="hero-art" aria-hidden="true">
         <div class="art-circle circle-one"></div>
         <div class="art-circle circle-two"></div>
@@ -101,10 +106,9 @@
             <p id="speechNotice" class="notice hidden"></p>
           </div>
 
-         
           <div class="field-group">
             <div class="label-row">
-              <label>5. Add a photograph</label>
+              <label for="photo">5. Add a photograph</label>
               <span class="optional-tag">OPTIONAL</span>
             </div>
             <label for="photo" class="upload-area" id="uploadArea">
@@ -124,20 +128,25 @@
           <div class="field-group location-group">
             <div class="label-row">
               <div>
-                <label>6. Where is the problem?</label>
+                <label for="manualLocation">6. Where is the problem?</label>
                 <p class="field-hint">Share your current location so the right local team can find the issue.</p>
               </div>
               <span class="optional-tag">GPS</span>
             </div>
+
             <button type="button" class="button button-location" id="locationButton">
               <span>⌖</span> Use my current location
             </button>
+
+            <label for="manualLocation" class="field-hint">Or enter your area, street or landmark manually:</label>
             <input
-                 type="text"
-                 id="manualLocation"
-                 placeholder="Or enter area, street or landmark manually"
-                 style="width:100%; padding:12px; margin-top:10px; border:1px solid #dce9e6; border-radius:10px;"
-             />
+              type="text"
+              id="manualLocation"
+              name="manualLocation"
+              placeholder="Enter area, street or landmark"
+              style="width:100%; padding:12px; margin-top:10px; border:1px solid #dce9e6; border-radius:10px;"
+            />
+
             <p id="locationStatus" class="location-status" aria-live="polite">Location has not been added yet.</p>
             <div id="coordinates" class="coordinates hidden">
               <span>LATITUDE <strong id="latitudeValue">—</strong></span>
@@ -146,6 +155,7 @@
           </div>
 
           <div id="formMessage" class="form-message hidden" role="status"></div>
+
           <button type="submit" class="button button-submit" id="submitButton">
             Submit complaint <span>→</span>
           </button>
@@ -160,6 +170,7 @@
           <p>Notice unusual colour, smell or appearance in your water? Report what you observe so it can be reviewed.</p>
           <div class="help-note">Citizen observations do not replace certified laboratory testing.</div>
         </div>
+
         <div class="how-card">
           <h3>How Civic360 works</h3>
           <div class="how-step"><span>1</span><div><strong>You report</strong><small>Share a voice or text complaint.</small></div></div>
@@ -192,7 +203,10 @@
       <p class="eyebrow">REPORT RECEIVED</p>
       <h2 id="successTitle">Thank you for speaking up!</h2>
       <p>Your complaint has been recorded in this demo.</p>
-      <div class="complaint-id-box"><small>YOUR COMPLAINT ID</small><strong id="generatedId">CIV-000000</strong></div>
+      <div class="complaint-id-box">
+        <small>YOUR COMPLAINT ID</small>
+        <strong id="generatedId">CIV-000000</strong>
+      </div>
       <button type="button" class="button button-submit" id="closeModal">Done</button>
     </div>
   </div>
