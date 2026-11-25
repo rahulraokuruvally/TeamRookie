@@ -1,0 +1,77 @@
+description,category
+"There is a large pothole on the road",Road Damage
+"Road surface is damaged and needs repair",Road Damage
+"Broken road causing traffic problems",Road Damage
+"ರಸ್ತೆಯಲ್ಲಿ ಗುಂಡಿಗಳಿವೆ",Road Damage
+"ರಸ್ತೆ ಹಾಳಾಗಿದೆ",Road Damage
+"ರಸ್ತೆಯಲ್ಲಿ ದೊಡ್ಡ ಗುಂಡಿ ಇದೆ",Road Damage
+"सड़क पर गड्ढे हैं",Road Damage
+"सड़क खराब हो गई है",Road Damage
+"सड़क पर बड़ा गड्ढा है",Road Damage
+"Dirty water coming from public tap",Water Quality
+"Water has a bad smell and unusual colour",Water Quality
+"Water contains mud and particles",Water Quality
+"ಕುಡಿಯುವ ನೀರು ಕೊಳಕಾಗಿದೆ",Water Quality
+"ನೀರಿನಲ್ಲಿ ಕೆಟ್ಟ ವಾಸನೆ ಬರುತ್ತಿದೆ",Water Quality
+"ಕುಡಿಯುವ ನೀರಿನ ಬಣ್ಣ ಬದಲಾಗಿದೆ",Water Quality
+"पीने का पानी गंदा है",Water Quality
+"पानी से बदबू आ रही है",Water Quality
+"पानी का रंग बदल गया है",Water Quality
+"No water supply in our area",Water Supply
+"Water pipeline is leaking",Water Supply
+"Public tap has no water",Water Supply
+"ನಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ನೀರು ಬರುತ್ತಿಲ್ಲ",Water Supply
+"ನೀರಿನ ಪೈಪ್ ಸೋರಿಕೆಯಾಗುತ್ತಿದೆ",Water Supply
+"ಸಾರ್ವಜನಿಕ ನಲ್ಲಿ ನೀರು ಬರುತ್ತಿಲ್ಲ",Water Supply
+"हमारे इलाके में पानी नहीं आ रहा है",Water Supply
+"पानी की पाइपलाइन लीक हो रही है",Water Supply
+"सार्वजनिक नल में पानी नहीं है",Water Supply
+"Drain is blocked and overflowing",Drainage
+"Sewage water is flooding the street",Drainage
+"Bad smell from overflowing drainage",Drainage
+"ಚರಂಡಿ ತುಂಬಿ ಹರಿಯುತ್ತಿದೆ",Drainage
+"ಒಳಚರಂಡಿ ಮುಚ್ಚಿಹೋಗಿದೆ",Drainage
+"ರಸ್ತೆಯಲ್ಲಿ ಕೊಳಚೆ ನೀರು ಹರಿಯುತ್ತಿದೆ",Drainage
+"नाली जाम हो गई है",Drainage
+"नाली का पानी सड़क पर बह रहा है",Drainage
+"सीवर का पानी भर रहा है",Drainage
+"Garbage is dumped near the park",Garbage
+"Waste is accumulating on the roadside",Garbage
+"Uncollected garbage is causing bad smell",Garbage
+"ರಸ್ತೆ ಬದಿಯಲ್ಲಿ ಕಸ ಬಿದ್ದಿದೆ",Garbage
+"ಕಸ ಸಂಗ್ರಹವಾಗುತ್ತಿದೆ",Garbage
+"ಉದ್ಯಾನವನದ ಬಳಿ ಕಸ ಹಾಕಲಾಗಿದೆ",Garbage
+"सड़क के किनारे कचरा पड़ा है",Garbage
+"कचरा जमा हो रहा है",Garbage
+"पार्क के पास कचरा फेंका गया है",Garbage
+
+The road has deep cracks near the bus stop,Road Damage
+A section of the street has collapsed after the rain,Road Damage
+The drinking water has a strange smell,Water Quality
+There are visible particles floating in the tap water,Water Quality
+Water is not reaching our apartment for three days,Water Supply
+The public tap has stopped supplying water,Water Supply
+The stormwater drain is blocked with mud,Drainage
+Wastewater is flowing out of the roadside drain,Drainage
+Garbage bags have been dumped beside the school,Garbage
+The community dustbin has not been emptied for several days,Garbage
+सड़क पर बस स्टॉप के पास गहरी दरारें हैं,Road Damage
+बारिश के बाद सड़क का एक हिस्सा धंस गया है,Road Damage
+पीने के पानी से अजीब गंध आ रही है,Water Quality
+नल के पानी में गंदे कण दिखाई दे रहे हैं,Water Quality
+हमारे अपार्टमेंट में तीन दिनों से पानी नहीं आ रहा है,Water Supply
+सार्वजनिक नल से पानी आना बंद हो गया है,Water Supply
+बारिश का पानी निकालने वाली नाली मिट्टी से जाम है,Drainage
+सड़क किनारे की नाली से गंदा पानी बाहर बह रहा है,Drainage
+स्कूल के पास कचरे की बोरियां फेंकी गई हैं,Garbage
+सामुदायिक कूड़ेदान कई दिनों से खाली नहीं किया गया है,Garbage
+ಬಸ್ ನಿಲ್ದಾಣದ ಹತ್ತಿರ ರಸ್ತೆಯಲ್ಲಿ ಆಳವಾದ ಬಿರುಕುಗಳಿವೆ,Road Damage
+ಮಳೆಯ ನಂತರ ರಸ್ತೆಯ ಒಂದು ಭಾಗ ಕುಸಿದಿದೆ,Road Damage
+ಕುಡಿಯುವ ನೀರಿನಿಂದ ವಿಚಿತ್ರ ವಾಸನೆ ಬರುತ್ತಿದೆ,Water Quality
+ನಲ್ಲಿ ನೀರಿನಲ್ಲಿ ಕೊಳಕು ಕಣಗಳು ಕಾಣಿಸುತ್ತಿವೆ,Water Quality
+ನಮ್ಮ ಅಪಾರ್ಟ್‌ಮೆಂಟ್‌ಗೆ ಮೂರು ದಿನಗಳಿಂದ ನೀರು ಬರುತ್ತಿಲ್ಲ,Water Supply
+ಸಾರ್ವಜನಿಕ ನಲ್ಲಿಯಲ್ಲಿ ನೀರು ಬರುವುದು ನಿಂತಿದೆ,Water Supply
+ಮಳೆನೀರು ಹರಿಯುವ ಚರಂಡಿ ಮಣ್ಣಿನಿಂದ ಮುಚ್ಚಿಹೋಗಿದೆ,Drainage
+ರಸ್ತೆ ಬದಿಯ ಚರಂಡಿಯಿಂದ ಕೊಳಚೆ ನೀರು ಹೊರಗೆ ಹರಿಯುತ್ತಿದೆ,Drainage
+ಶಾಲೆಯ ಪಕ್ಕದಲ್ಲಿ ಕಸದ ಚೀಲಗಳನ್ನು ಸುರಿಯಲಾಗಿದೆ,Garbage
+ಸಾರ್ವಜನಿಕ ಕಸದ ತೊಟ್ಟಿಯನ್ನು ಹಲವು ದಿನಗಳಿಂದ ಖಾಲಿ ಮಾಡಿಲ್ಲ,Garbage
