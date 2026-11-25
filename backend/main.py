@@ -34,8 +34,9 @@ class ComplaintCreate(BaseModel):
     language: str = "English"
     latitude: float | None = None
     longitude: float | None = None
+    manual_location: str | None = None
     image_url: str | None = None
-
+    
 
 class ComplaintStatusUpdate(BaseModel):
     status: ComplaintStatus
@@ -210,6 +211,7 @@ def submit_complaint(payload: ComplaintCreate):
         "language": payload.language,
         "latitude": payload.latitude,
         "longitude": payload.longitude,
+        "manual_location": payload.manual_location,
         "image_url": payload.image_url,
         "category": ai_result["category"],
         "priority": ai_result["priority"],
