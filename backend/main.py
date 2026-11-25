@@ -43,6 +43,10 @@ class ComplaintStatusUpdate(BaseModel):
 
 class ClassifyRequest(BaseModel):
     description: str = Field(min_length=3, max_length=2000)
+class FeedbackCreate(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    review: str = Field(min_length=1, max_length=1000)
+   
 
 
 def run_ai_classification(description: str) -> dict:
@@ -70,33 +74,79 @@ def run_ai_classification(description: str) -> dict:
         raise HTTPException(status_code=500, detail=f"AI classification failed: {exc}") from exc
 
 
+def assign_departments(description: str) -> list[dict]:
+    """Assign relevant departments based on complaint keywords."""
+
+    text = description.lower()
+    departments = []
+
+    def add_department(name, task):
+        departments.append({
+            "department": name,
+            "task": task,
+            "status": "Pending"
+        })
+
+    # Water pipeline issues
+    if any(word in text for word in [
+        "pipeline leak", "pipe leak", "water leak",
+        "burst pipe", "water leakage"
+    ]):
+        add_department(
+            "Water Supply",
+            "Inspect and repair the leaking water pipeline."
+        )
+
+    # Sewage and drainage issues
+    if any(word in text for word in [
+        "sewage", "sewer", "drainage", "drain overflow"
+    ]):
+        add_department(
+            "Sewerage",
+            "Inspect and resolve the sewage or drainage issue."
+        )
+
+    # Road damage
+    if any(word in text for word in [
+        "road damage", "damaged road", "pothole",
+        "broken road", "road repair"
+    ]):
+        add_department(
+            "Road Maintenance",
+            "Repair and restore the damaged road."
+        )
+
+    # Garbage issues
+    if any(word in text for word in [
+        "garbage", "waste", "rubbish", "litter"
+    ]):
+        add_department(
+            "Sanitation",
+            "Remove garbage and clean the affected area."
+        )
+
+    # Electrical issues
+    if any(word in text for word in [
+        "electricity", "power line", "exposed wire",
+        "electric pole"
+    ]):
+        add_department(
+            "Electricity",
+            "Inspect and resolve the electrical issue."
+        )
+
+    # Fallback
+    if not departments:
+        add_department(
+            "Municipal Administration",
+            "Review the complaint and assign the responsible department."
+        )
+
+    return departments
+
 @app.get("/")
 def home():
     return {"message": "Welcome to Civic360 API", "docs": "/docs"}
-
-
-@app.post("/complaints", status_code=201)
-def submit_complaint(payload: ComplaintCreate):
-    # Ask the AI module to suggest category and priority.
-    ai_result = run_ai_classification(payload.description)
-
-    complaint = {
-        "complaint_id": "CIV-" + uuid4().hex[:8].upper(),
-        "description": payload.description,
-        "language": payload.language,
-        "latitude": payload.latitude,
-        "longitude": payload.longitude,
-        "image_url": payload.image_url,
-        "category": ai_result["category"],
-        "priority": ai_result["priority"],
-        "confidence": ai_result["confidence"],
-        "status": "Pending",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    database.create_complaint(complaint)
-    return {"message": "Complaint submitted successfully", "complaint": complaint}
-
-
 @app.get("/complaints")
 def list_complaints():
     return {"complaints": database.get_all_complaints()}
@@ -144,3 +194,56 @@ def get_stats():
 def classify_only(payload: ClassifyRequest):
     """Lets the frontend or team test the AI without saving a complaint."""
     return run_ai_classification(payload.description)
+@app.post("/complaints/{complaint_id}/feedback")
+
+@app.post("/complaints", status_code=201)
+def submit_complaint(payload: ComplaintCreate):
+    # Ask the AI module to suggest category and priority.
+    ai_result = run_ai_classification(payload.description)
+
+    # Assign responsible departments.
+    department_tasks = assign_departments(payload.description)
+
+    complaint = {
+        "complaint_id": "CIV-" + uuid4().hex[:8].upper(),
+        "description": payload.description,
+        "language": payload.language,
+        "latitude": payload.latitude,
+        "longitude": payload.longitude,
+        "image_url": payload.image_url,
+        "category": ai_result["category"],
+        "priority": ai_result["priority"],
+        "confidence": ai_result["confidence"],
+        "status": "Pending",
+        "department_tasks": department_tasks,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    database.create_complaint(complaint)
+
+    return {
+        "message": "Complaint submitted successfully",
+        "complaint": complaint
+    }
+
+@app.post("/complaints/{complaint_id}/feedback")
+def submit_complaint_feedback(
+    complaint_id: str,
+    payload: FeedbackCreate
+):
+    try:
+        complaint = database.submit_feedback(
+            complaint_id,
+            payload.rating,
+            payload.review
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    if complaint is None:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    return {
+        "message": "Feedback submitted successfully",
+        "feedback": complaint["feedback"]
+    }

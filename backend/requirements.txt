@@ -1,9 +1,7 @@
 fastapi
 uvicorn[standard]
 pydantic
-# Optional, only needed when switching to Firebase Firestore:
 firebase-admin
-# Developer 3's AI module also needs its own packages:
-# scikit-learn
-# pandas
-# joblib
+scikit-learn
+pandas
+joblib

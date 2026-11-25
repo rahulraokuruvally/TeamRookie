@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any
+from datetime import datetime, timezone
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -110,3 +111,49 @@ def update_complaint_status(complaint_id: str, status: str) -> dict[str, Any] | 
             _write_json(items)
             return item
     return None
+def submit_feedback(
+    complaint_id: str,
+    rating: int,
+    review: str
+) -> dict[str, Any] | None:
+    """Save citizen feedback for a resolved complaint."""
+
+    if rating < 1 or rating > 5:
+        raise ValueError("Rating must be between 1 and 5.")
+
+    if not review.strip():
+        raise ValueError("Review cannot be empty.")
+
+    complaint = get_complaint(complaint_id)
+
+    if complaint is None:
+        return None
+
+    if complaint.get("status") != "Resolved":
+        raise ValueError("Feedback is allowed only for resolved complaints.")
+
+    if complaint.get("feedback") is not None:
+        raise ValueError("Feedback has already been submitted.")
+
+    feedback = {
+        "rating": rating,
+        "review": review.strip(),
+        "submitted_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    complaint["feedback"] = feedback
+
+    if _use_firestore():
+        db = _get_firestore()
+        db.collection("complaints").document(complaint_id).update({
+            "feedback": feedback
+        })
+    else:
+        items = _read_json()
+        for item in items:
+            if item["complaint_id"] == complaint_id:
+                item["feedback"] = feedback
+                break
+        _write_json(items)
+
+    return complaint
