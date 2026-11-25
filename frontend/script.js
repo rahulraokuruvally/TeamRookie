@@ -292,11 +292,12 @@ form.addEventListener("submit", async (event) => {
  
   // These are the six fields agreed with the backend team.
   const complaint = {
-    description: description,
-    language: languageInput.value,
-    latitude: latitude,
-    longitude: longitude
-  };
+  description: description,
+  language: languageInput.value,
+  latitude: latitude,
+  longitude: longitude,
+  manual_location: document.getElementById("manualLocation")?.value.trim() || ""
+};
 
   submitButton.disabled = true;
   submitButton.textContent = "Submitting…";
