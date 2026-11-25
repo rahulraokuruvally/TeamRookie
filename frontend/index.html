@@ -3,233 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civic360 | Civic Intelligence Platform</title>
+  <meta name="theme-color" content="#0f766e">
+  <title>Civic360 | Your Voice, Your City</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-<div id="app">
-  <!-- LOGIN -->
-  <section id="loginView" class="login-shell">
-    <div class="login-brand">
-      <div class="brand-mark">C360</div>
-      <div>
-        <div class="brand-name">Civic<span>360</span></div>
-        <div class="brand-sub">VOICE • ACTION • ACCOUNTABILITY</div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Civic360 home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img">
+          <path d="M24 4C18 13 9 22 9 30a15 15 0 0 0 30 0C39 22 30 13 24 4Z" fill="none" stroke="currentColor" stroke-width="3"/>
+          <path d="M15 29c5 2 13 2 18 0M18 35c4 1 8 1 12 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M24 16v8m-4-4h8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-name">Civic<span>360</span><small>YOUR VOICE. YOUR CITY.</small></span>
+    </a>
+    <span class="header-tag"><span class="live-dot"></span> CITIZEN PORTAL</span>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">A BETTER CITY STARTS WITH YOU</p>
+        <h1>See a problem?<br><span>Let's solve it.</span></h1>
+        <p class="hero-description">Report civic issues in your language. Share what you see, tell us where it is, and help make your neighbourhood better.</p>
+        <div class="hero-points">
+          <span><span class="check-icon">✓</span> Easy reporting</span>
+          <span><span class="check-icon">✓</span> Your language</span>
+          <span><span class="check-icon">✓</span> Location aware</span>
+        </div>
       </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-circle circle-one"></div>
+        <div class="art-circle circle-two"></div>
+        <div class="art-card">
+          <div class="art-card-top"><span class="art-pin">⌖</span><span>COMMUNITY UPDATE</span></div>
+          <div class="art-road"></div>
+          <div class="art-house house-one"><span></span></div>
+          <div class="art-house house-two"><span></span></div>
+          <div class="art-tree tree-one"></div>
+          <div class="art-tree tree-two"></div>
+          <div class="art-drop">滴</div>
+          <div class="art-status"><span></span> Building a cleaner tomorrow</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-layout">
+      <div class="form-main">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CITIZEN REPORT</p>
+            <h2>Raise a complaint</h2>
+            <p class="muted">A few details are all it takes to make a difference.</p>
+          </div>
+          <span class="step-pill">01 <span>/</span> 01</span>
+        </div>
+
+        <form id="complaintForm">
+          <div class="field-group">
+            <label for="language">1. Choose your language <span class="required">*</span></label>
+            <select id="language" name="language" required>
+              <option value="English">English</option>
+              <option value="Kannada">ಕನ್ನಡ (Kannada)</option>
+              <option value="Hindi">हिन्दी (Hindi)</option>
+              <option value="Telugu">తెలుగు (Telugu)</option>
+              <option value="Tamil">தமிழ் (Tamil)</option>
+              <option value="Malayalam">മലയാളം (Malayalam)</option>
+              <option value="Marathi">मराठी (Marathi)</option>
+              <option value="Bengali">বাংলা (Bengali)</option>
+            </select>
+            <small class="field-hint">Choose the language you are comfortable using.</small>
+          </div>
+
+          <div class="field-group">
+            <div class="label-row">
+              <label for="description">2. Describe the problem <span class="required">*</span></label>
+              <span class="optional-tag">TEXT OR VOICE</span>
+            </div>
+            <textarea id="description" name="description" rows="5" maxlength="1000"
+              placeholder="Example: There is dirty water coming from the tap in our street..." required></textarea>
+            <div class="textarea-footer">
+              <small class="field-hint">Explain what happened and where you noticed it.</small>
+              <span id="charCount">0 / 1000</span>
+            </div>
+            <div class="voice-row">
+              <button type="button" class="button button-voice" id="voiceButton">
+                <span class="mic-icon">🎙</span> <span id="voiceButtonText">Start voice input</span>
+              </button>
+              <span id="voiceStatus" class="voice-status" aria-live="polite">Speak and we'll add the words here.</span>
+            </div>
+            <p id="speechNotice" class="notice hidden"></p>
+          </div>
+
+         
+          <div class="field-group">
+            <div class="label-row">
+              <label>5. Add a photograph</label>
+              <span class="optional-tag">OPTIONAL</span>
+            </div>
+            <label for="photo" class="upload-area" id="uploadArea">
+              <span class="upload-icon">＋</span>
+              <span><strong>Choose a photo</strong><small>JPG, PNG or WEBP · Up to 5 MB</small></span>
+              <span class="browse-label">Browse files</span>
+            </label>
+            <input type="file" id="photo" accept="image/png,image/jpeg,image/webp" hidden>
+            <div id="photoPreview" class="photo-preview hidden">
+              <img id="previewImage" alt="Selected complaint photograph preview">
+              <div><strong id="photoName"></strong><small>Ready for preview</small></div>
+              <button type="button" id="removePhoto" class="remove-photo" aria-label="Remove photo">✕</button>
+            </div>
+            <small class="field-hint">A photograph can help explain the issue. It is preview-only in this frontend demo.</small>
+          </div>
+
+          <div class="field-group location-group">
+            <div class="label-row">
+              <div>
+                <label>6. Where is the problem?</label>
+                <p class="field-hint">Share your current location so the right local team can find the issue.</p>
+              </div>
+              <span class="optional-tag">GPS</span>
+            </div>
+            <button type="button" class="button button-location" id="locationButton">
+              <span>⌖</span> Use my current location
+            </button>
+            <input
+                 type="text"
+                 id="manualLocation"
+                 placeholder="Or enter area, street or landmark manually"
+                 style="width:100%; padding:12px; margin-top:10px; border:1px solid #dce9e6; border-radius:10px;"
+             />
+            <p id="locationStatus" class="location-status" aria-live="polite">Location has not been added yet.</p>
+            <div id="coordinates" class="coordinates hidden">
+              <span>LATITUDE <strong id="latitudeValue">—</strong></span>
+              <span>LONGITUDE <strong id="longitudeValue">—</strong></span>
+            </div>
+          </div>
+
+          <div id="formMessage" class="form-message hidden" role="status"></div>
+          <button type="submit" class="button button-submit" id="submitButton">
+            Submit complaint <span>→</span>
+          </button>
+          <p class="privacy-note">Your report helps civic teams understand and address local issues.</p>
+        </form>
+      </div>
+
+      <aside class="side-panel">
+        <div class="help-card">
+          <div class="help-icon">💧</div>
+          <h3>Water quality matters.</h3>
+          <p>Notice unusual colour, smell or appearance in your water? Report what you observe so it can be reviewed.</p>
+          <div class="help-note">Citizen observations do not replace certified laboratory testing.</div>
+        </div>
+        <div class="how-card">
+          <h3>How Civic360 works</h3>
+          <div class="how-step"><span>1</span><div><strong>You report</strong><small>Share a voice or text complaint.</small></div></div>
+          <div class="how-step"><span>2</span><div><strong>We record</strong><small>Your issue and location are submitted.</small></div></div>
+          <div class="how-step"><span>3</span><div><strong>Authorities review</strong><small>The relevant civic team can investigate.</small></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="recent-section">
+      <div class="recent-heading">
+        <div><p class="eyebrow">YOUR ACTIVITY</p><h2>Recent complaints</h2></div>
+        <button type="button" class="refresh-button" id="refreshButton">↻ Refresh</button>
+      </div>
+      <div id="complaintsList" class="complaints-list">
+        <div class="empty-state">Your submitted complaints will appear here.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a class="footer-brand" href="#">Civic360</a>
+    <span>Small reports. Better neighbourhoods.</span>
+    <span>© 2026 Civic360 · Hackathon prototype</span>
+  </footer>
+
+  <div id="successModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+    <div class="modal-card">
+      <div class="success-check">✓</div>
+      <p class="eyebrow">REPORT RECEIVED</p>
+      <h2 id="successTitle">Thank you for speaking up!</h2>
+      <p>Your complaint has been recorded in this demo.</p>
+      <div class="complaint-id-box"><small>YOUR COMPLAINT ID</small><strong id="generatedId">CIV-000000</strong></div>
+      <button type="button" class="button button-submit" id="closeModal">Done</button>
     </div>
-
-    <div class="login-card">
-      <div class="eyebrow">WELCOME TO CIVIC360</div>
-      <h1>Choose how you want to continue</h1>
-      <p class="login-copy">Citizens report and track issues. Authorities review, prioritize and update civic work.</p>
-
-      <div class="role-switch">
-        <button class="role-btn active" data-role="citizen">👤 Citizen</button>
-        <button class="role-btn" data-role="authority">🏛️ Authority / Admin</button>
-      </div>
-
-      <form id="loginForm">
-        <label>Email / User ID</label>
-        <input id="loginIdentifier" required placeholder="Enter your email or user ID">
-        <label>Password</label>
-        <input id="loginPassword" type="password" required placeholder="Enter password">
-        <button class="primary-btn" type="submit">Sign in <span>→</span></button>
-        <div id="loginError" class="error-box hidden"></div>
-      </form>
-
-      <div class="demo-credentials">
-        <strong>Demo credentials</strong>
-        <div id="citizenCreds">Citizen: <b>citizen@civic360.com</b> / <b>citizen123</b></div>
-        <div id="authorityCreds" class="hidden">Authority: <b>admin@civic360.com</b> / <b>admin123</b></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CITIZEN -->
-  <section id="citizenView" class="dashboard hidden">
-    <header class="topbar">
-      <div class="brand-inline"><div class="brand-mark small">C360</div><div class="brand-name">Civic<span>360</span></div></div>
-      <div class="top-actions">
-        <span id="citizenUserBadge" class="user-badge"></span>
-        <button class="ghost-btn logout-btn">Log out</button>
-      </div>
-    </header>
-
-    <main class="page">
-      <section class="hero compact">
-        <div>
-          <div class="eyebrow">CITIZEN PORTAL</div>
-          <h2>Tell Civic360 what is happening.</h2>
-          <p>Speak in your preferred Indian language. Civic360 converts the report into clear English, identifies the issue and lets you follow its progress.</p>
-          <div class="hero-chips"><span>🎙️ Voice-first</span><span>🌐 Multilingual</span><span>📍 Location-aware</span><span>🔎 Trackable</span></div>
-        </div>
-        <div class="hero-stat"><strong id="citizenComplaintCount">0</strong><span>Your reports</span></div>
-      </section>
-
-      <div class="content-grid">
-        <section class="panel">
-          <div class="panel-head">
-            <div><div class="eyebrow">NEW REPORT</div><h3>Raise a civic issue</h3></div>
-            <span class="step">01 / 01</span>
-          </div>
-
-          <form id="complaintForm">
-            <div class="field">
-              <label>Preferred language</label>
-              <select id="language">
-                <option value="English">English</option>
-                <option value="Hindi">Hindi / हिन्दी</option>
-                <option value="Kannada">Kannada / ಕನ್ನಡ</option>
-                <option value="Telugu">Telugu / తెలుగు</option>
-                <option value="Tamil">Tamil / தமிழ்</option>
-                <option value="Marathi">Marathi / मराठी</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Describe the problem</label>
-              <textarea id="description" maxlength="1500" placeholder="Example: There is a large pothole near the bus stop..."></textarea>
-              <div class="voice-row">
-                <button type="button" id="voiceButton" class="secondary-btn">🎙️ Start voice input</button>
-                <span id="voiceStatus" class="muted">Speak naturally. The English version will appear below.</span>
-              </div>
-              <div id="translationBox" class="translation-box hidden">
-                <div class="translation-title">AI-understood English statement</div>
-                <div id="englishStatement"></div>
-                <small id="translationNote"></small>
-              </div>
-            </div>
-
-            <div class="two-col">
-              <div class="field">
-                <label>Category <span class="auto">AI SUGGESTED</span></label>
-                <select id="category">
-                  <option value="">AI will suggest after submission</option>
-                  <option>Water Quality</option>
-                  <option>Drainage</option>
-                  <option>Garbage</option>
-                  <option>Road Damage</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Location</label>
-                <button type="button" id="locationButton" class="secondary-btn full">📍 Use my current location</button>
-                <small id="locationStatus" class="muted">Location not added.</small>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Photo evidence <span class="optional">OPTIONAL</span></label>
-              <input id="photo" type="file" accept="image/png,image/jpeg,image/webp">
-              <small class="muted">Use a clear photo when possible.</small>
-            </div>
-
-            <div id="formMessage" class="message hidden"></div>
-            <button id="submitButton" class="primary-btn" type="submit">Submit complaint <span>→</span></button>
-          </form>
-        </section>
-
-        <aside class="side-stack">
-          <div class="panel water-card">
-            <div class="icon">💧</div>
-            <h3>Water quality observation</h3>
-            <p>Report unusual colour, smell or appearance. Civic360 treats this as a citizen observation; certified testing remains the responsibility of the appropriate authority.</p>
-          </div>
-          <div class="panel">
-            <div class="eyebrow">HOW IT WORKS</div>
-            <div class="mini-step"><b>1</b><span>Speak or type in your language.</span></div>
-            <div class="mini-step"><b>2</b><span>AI creates a clear English statement and classifies the issue.</span></div>
-            <div class="mini-step"><b>3</b><span>Authority reviews and updates the work.</span></div>
-            <div class="mini-step"><b>4</b><span>You track the status and provide feedback.</span></div>
-          </div>
-        </aside>
-      </div>
-
-      <section class="panel">
-        <div class="panel-head">
-          <div><div class="eyebrow">MY COMPLAINTS</div><h3>Track your reports</h3></div>
-          <button id="refreshCitizen" class="ghost-btn">↻ Refresh</button>
-        </div>
-        <div id="citizenComplaints" class="table-wrap"></div>
-      </section>
-    </main>
-  </section>
-
-  <!-- AUTHORITY -->
-  <section id="authorityView" class="dashboard hidden">
-    <header class="topbar">
-      <div class="brand-inline"><div class="brand-mark small">C360</div><div class="brand-name">Civic<span>360</span></div></div>
-      <div class="top-actions">
-        <span class="admin-badge">AUTHORITY ADMIN</span>
-        <span id="authorityUserBadge" class="user-badge"></span>
-        <button class="ghost-btn logout-btn">Log out</button>
-      </div>
-    </header>
-
-    <main class="page">
-      <section class="admin-hero">
-        <div>
-          <div class="eyebrow">AUTHORITY COMMAND CENTER</div>
-          <h2>Complaint intelligence & work status</h2>
-          <p>Review the citizen's unique ID, English problem statement, category, priority and current working status in one place.</p>
-        </div>
-        <div class="admin-date" id="adminDate"></div>
-      </section>
-
-      <section class="stats-grid">
-        <div class="stat"><span>Total complaints</span><strong id="statTotal">0</strong></div>
-        <div class="stat"><span>Pending</span><strong id="statPending">0</strong></div>
-        <div class="stat"><span>In progress</span><strong id="statProgress">0</strong></div>
-        <div class="stat"><span>Resolved</span><strong id="statResolved">0</strong></div>
-        <div class="stat danger"><span>High priority</span><strong id="statHigh">0</strong></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <div><div class="eyebrow">ALL CITIZEN REPORTS</div><h3>Complaint management</h3></div>
-          <div class="filters">
-            <select id="statusFilter"><option value="">All status</option><option>Pending</option><option>In Progress</option><option>Resolved</option></select>
-            <select id="priorityFilter"><option value="">All priority</option><option>High</option><option>Medium</option><option>Low</option></select>
-            <select id="categoryFilter"><option value="">All categories</option><option>Water Quality</option><option>Water Supply / Pipe Damage</option><option>Drainage</option><option>Garbage</option><option>Road Damage</option></select>
-            <button id="refreshAdmin" class="ghost-btn">↻ Refresh</button>
-          </div>
-        </div>
-        <div id="adminComplaints" class="table-wrap"></div>
-      </section>
-
-      <section id="adminDetail" class="panel hidden">
-        <div class="panel-head">
-          <div><div class="eyebrow">COMPLAINT DETAILS</div><h3 id="detailTitle">Complaint</h3></div>
-          <button id="closeDetail" class="ghost-btn">Close</button>
-        </div>
-        <div class="detail-grid">
-          <div><span>Unique citizen ID</span><strong id="dUserId"></strong></div>
-          <div><span>Complaint ID</span><strong id="dComplaintId"></strong></div>
-          <div><span>Category</span><strong id="dCategory"></strong></div>
-          <div><span>Priority</span><strong id="dPriority"></strong></div>
-          <div><span>Progress status</span><strong id="dStatus"></strong></div>
-          <div><span>Working status</span><strong id="dWorking"></strong></div>
-        </div>
-        <div class="statement-card">
-          <span>PROBLEM STATEMENT — ENGLISH</span>
-          <p id="dStatement"></p>
-        </div>
-        <div class="update-row">
-          <select id="statusUpdate">
-            <option>Pending</option>
-            <option>In Progress</option>
-            <option>Resolved</option>
-          </select>
-          <button id="updateStatusButton" class="primary-btn small-btn">Update work status</button>
-        </div>
-        <div id="adminMessage" class="message hidden"></div>
-      </section>
-    </main>
-  </section>
-</div>
-<script src="script.js"></script>
+  </div>
 </body>
 </html>
