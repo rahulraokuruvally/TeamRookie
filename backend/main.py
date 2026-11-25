@@ -1,6 +1,9 @@
-from datetime import datetime, timezone
+from pathlib import Path
+from fastapi import UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from uuid import uuid4
 from typing import Literal
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +15,16 @@ app = FastAPI(
     title="Civic360 API",
     description="Backend API for citizen complaints and the authority dashboard.",
     version="1.0.0"
+)
+# Image storage
+UPLOAD_DIR = Path(__file__).resolve().parent / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Make uploaded images accessible through URLs
+app.mount(
+    "/uploads",
+    StaticFiles(directory=str(UPLOAD_DIR)),
+    name="uploads"
 )
 
 # Allows the separate citizen and admin websites to call this API during development.
@@ -147,6 +160,42 @@ def assign_departments(description: str) -> list[dict]:
 
 @app.get("/")
 def home():
+    return {"message": "Civic360 API is running"}
+
+@app.post("/upload-image")
+async def upload_image(file: UploadFile = File(...)):
+
+    allowed_types = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp"
+    }
+
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Only JPG, PNG and WEBP images are allowed."
+        )
+
+    image_data = await file.read()
+
+    if len(image_data) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="Image must be smaller than 5 MB."
+        )
+
+    extension = allowed_types[file.content_type]
+    filename = f"{uuid4().hex}{extension}"
+    file_path = UPLOAD_DIR / filename
+
+    with open(file_path, "wb") as image_file:
+        image_file.write(image_data)
+
+    return {
+        "message": "Image uploaded successfully",
+        "image_url": f"/uploads/{filename}"
+    }
     return {"message": "Welcome to Civic360 API", "docs": "/docs"}
 @app.get("/complaints")
 def list_complaints():
@@ -195,7 +244,7 @@ def get_stats():
 def classify_only(payload: ClassifyRequest):
     """Lets the frontend or team test the AI without saving a complaint."""
     return run_ai_classification(payload.description)
-@app.post("/complaints/{complaint_id}/feedback")
+
 
 @app.post("/complaints", status_code=201)
 def submit_complaint(payload: ComplaintCreate):

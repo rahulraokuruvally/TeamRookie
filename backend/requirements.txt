@@ -5,3 +5,4 @@ firebase-admin
 scikit-learn
 pandas
 joblib
+python-multipart

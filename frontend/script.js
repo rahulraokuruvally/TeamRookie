@@ -1,9 +1,12 @@
+
 /*
   Civic360 citizen frontend
   MOCK_MODE = true  -> saves demo complaints in this browser.
   MOCK_MODE = false -> sends requests to your team's FastAPI backend.
-*/const MOCK_MODE = false;
-const API_BASE_URL = "http://127.0.0.1:8000";
+*/
+
+const MOCK_MODE = false;
+const API_BASE_URL = "http://127.0.0.1:8001";
 const STORAGE_KEY = "civic360_demo_complaints";
 
 const form = document.getElementById("complaintForm");
@@ -12,7 +15,7 @@ const descriptionInput = document.getElementById("description");
 const voiceButton = document.getElementById("voiceButton");
 const voiceButtonText = document.getElementById("voiceButtonText");
 const voiceStatus = document.getElementById("voiceStatus");
-const speechNotice = document.getElementById("speechNotice");
+
 const photoInput = document.getElementById("photo");
 const photoPreview = document.getElementById("photoPreview");
 const previewImage = document.getElementById("previewImage");
@@ -291,12 +294,13 @@ form.addEventListener("submit", async (event) => {
 
  
   // These are the six fields agreed with the backend team.
-  const complaint = {
+ const complaint = {
   description: description,
   language: languageInput.value,
   latitude: latitude,
   longitude: longitude,
-  manual_location: document.getElementById("manualLocation")?.value.trim() || ""
+  manual_location: document.getElementById("manualLocation")?.value.trim() || "",
+  image_url: null
 };
 
   submitButton.disabled = true;
@@ -312,23 +316,44 @@ form.addEventListener("submit", async (event) => {
       result = { ...complaint, complaint_id: mockId, status: "Submitted" };
       saveMockComplaint(result);
     } else {
-      const response = await fetch(`${API_BASE_URL}/complaints`, {
+  // Upload photo first, if the citizen selected one.
+  if (selectedPhoto) {
+    const formData = new FormData();
+    formData.append("file", selectedPhoto);
+
+    const uploadResponse = await fetch(
+      `${API_BASE_URL}/upload-image`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(complaint)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Server returned ${response.status}`);
+        body: formData
       }
+    );
 
-      result = await response.json();
+    if (!uploadResponse.ok) {
+      throw new Error("Photo upload failed. Please try again.");
     }
 
-    const id = result.complaint?.complaint_id || result.complaint_id || result.id || "Submitted";
+    const uploadResult = await uploadResponse.json();
+    complaint.image_url = uploadResult.image_url;
+  }
+
+  // Submit complaint with the uploaded photo URL.
+  const response = await fetch(`${API_BASE_URL}/complaints`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(complaint)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Server returned ${response.status}`);
+  }
+
+  result = await response.json();
+}
+console.log("Backend complaint response:", result);
+const id = result.complaint?.complaint_id || result.complaint_id || result.id || "Submitted";
     generatedId.textContent = id;
-    successModal.classList.remove("hidden");
 
     form.reset();
     descriptionInput.dispatchEvent(new Event("input"));
@@ -341,6 +366,7 @@ form.addEventListener("submit", async (event) => {
     locationStatus.textContent = "Location has not been added yet.";
     locationButton.innerHTML = "<span>⌖</span> Use my current location";
     await loadComplaints();
+    successModal.classList.remove("hidden");
   } catch (error) {
     console.error("Complaint submission failed:", error);
     showFormMessage(
@@ -354,14 +380,15 @@ form.addEventListener("submit", async (event) => {
     submitButton.innerHTML = 'Submit complaint <span>→</span>';
   }
 });
-
 document.getElementById("closeModal").addEventListener("click", () => {
   successModal.classList.add("hidden");
 });
 
 successModal.addEventListener("click", (event) => {
-  if (event.target === successModal) successModal.classList.add("hidden");
+  event.stopPropagation();
 });
+
 
 // Load saved demo complaints when the page opens.
 loadComplaints();
+    

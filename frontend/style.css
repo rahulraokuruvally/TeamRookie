@@ -191,6 +191,12 @@ select:invalid { color: #8da19d; }
 .footer-brand { color: var(--teal); font: 800 14px Manrope, sans-serif; text-decoration: none; }
 
 .modal { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(15,43,40,.52); }
+.modal.hidden {
+  display: none !important;
+}
+.modal:not(.hidden) {
+  display: grid !important;
+}
 .modal-card { width: min(420px, 100%); padding: 34px; border-radius: 19px; background: white; text-align: center; box-shadow: 0 20px 70px rgba(0,0,0,.2); }
 .success-check { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 17px; border-radius: 50%; background: #e3f5eb; color: #23966b; font-size: 25px; font-weight: 700; }
 .modal-card h2 { margin: 6px 0; font-size: 21px; }
@@ -226,4 +232,11 @@ select:invalid { color: #8da19d; }
   .footer span { width: 100%; }
   .coordinates { flex-wrap: wrap; gap: 12px; }
   .complaint-item { align-items: flex-start; }
+}
+.modal.hidden {
+    display: none !important;
+}
+
+.modal {
+    display: grid;
 }
