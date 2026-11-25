@@ -3,10 +3,71 @@
   MOCK_MODE = true  -> saves demo complaints in this browser.
   MOCK_MODE = false -> sends requests to your team's FastAPI backend.
 */const MOCK_MODE = false;
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "http://192.168.119.29:8000";
 const STORAGE_KEY = "civic360_demo_complaints";
 
 const form = document.getElementById("complaintForm");
+const manualLocationInput = document.getElementById("manualLocation");
+const locationSuggestions = document.getElementById("locationSuggestions");
+
+let selectedLatitude = null;
+let selectedLongitude = null;
+let searchTimeout = null;
+manualLocationInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+
+    selectedLatitude = null;
+    selectedLongitude = null;
+    locationSuggestions.innerHTML = "";
+
+    const query = manualLocationInput.value.trim();
+
+    if (query.length < 3) return;
+
+    searchTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(
+                `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`
+            );
+
+            const data = await response.json();
+
+            locationSuggestions.innerHTML = "";
+
+            data.features.forEach((place) => {
+                const properties = place.properties;
+                const coordinates = place.geometry.coordinates;
+
+                const suggestion = document.createElement("div");
+
+                suggestion.textContent = [
+                    properties.name,
+                    properties.street,
+                    properties.city,
+                    properties.state
+                ].filter(Boolean).join(", ");
+
+                suggestion.style.padding = "12px";
+                suggestion.style.cursor = "pointer";
+                suggestion.style.borderBottom = "1px solid #ddd";
+
+                suggestion.addEventListener("click", () => {
+                    manualLocationInput.value = suggestion.textContent;
+
+                    selectedLongitude = coordinates[0];
+                    selectedLatitude = coordinates[1];
+
+                    locationSuggestions.innerHTML = "";
+                });
+
+                locationSuggestions.appendChild(suggestion);
+            });
+
+        } catch (error) {
+            console.error("Location search failed:", error);
+        }
+    }, 500);
+});
 const languageInput = document.getElementById("language");
 const descriptionInput = document.getElementById("description");
 const voiceButton = document.getElementById("voiceButton");
@@ -236,7 +297,12 @@ function renderComplaints(complaints) {
     return;
   }
 
-  complaints.slice(0, 5).forEach((complaint) => {
+  [...complaints]
+  .sort((a, b) => {
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  })
+  .slice(0, 5)
+  .forEach((complaint) => {
     const item = document.createElement("div");
     item.className = "complaint-item";
 
@@ -294,8 +360,13 @@ form.addEventListener("submit", async (event) => {
     const complaint = {
     description: description,
     language: languageInput.value,
-    latitude: latitude,
-    longitude: longitude,
+    latitude: manualLocationInput.value.trim()
+    ? selectedLatitude
+    : latitude,
+
+    longitude: manualLocationInput.value.trim()
+    ? selectedLongitude
+    : longitude,
     manual_location: document.getElementById("manualLocation")?.value.trim() || ""
   };
 
@@ -360,6 +431,11 @@ document.getElementById("closeModal").addEventListener("click", () => {
 });
  successModal.addEventListener("click", (event) => {
   if (event.target === successModal) successModal.classList.add("hidden");
+});
+
+document.getElementById("refreshButton").addEventListener("click", () => {
+    console.log("REFRESH BUTTON CLICKED");
+    loadComplaints();
 });
 
 // Load saved demo complaints when the page opens.
