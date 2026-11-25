@@ -1,6 +1,9 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Literal
+import json
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,6 +53,74 @@ class FeedbackCreate(BaseModel):
    
 
 
+def geocode_address(address: str) -> tuple[float | None, float | None]:
+    """
+    Convert a manually entered Indian address into coordinates
+    using OpenStreetMap Nominatim.
+    """
+    try:
+        params = urlencode({
+            "q": address + ", India",
+            "format": "jsonv2",
+            "limit": 1,
+            "countrycodes": "in"
+        })
+
+        url = f"https://nominatim.openstreetmap.org/search?{params}"
+
+        request = Request(
+            url,
+            headers={
+                "User-Agent": "Civic360/1.0",
+                "Accept": "application/json"
+            }
+        )
+
+        with urlopen(request, timeout=10) as response:
+            results = json.loads(response.read().decode("utf-8"))
+
+        if not results:
+            return None, None
+
+        return float(results[0]["lat"]), float(results[0]["lon"])
+
+    except Exception as exc:
+        print(f"Geocoding failed: {exc}")
+        return None, None
+def geocode_address(address: str) -> tuple[float | None, float | None]:
+    """
+    Convert a manually entered address into latitude and longitude
+    using OpenStreetMap.
+    """
+    try:
+        params = urlencode({
+            "q": address + ", India",
+            "format": "jsonv2",
+            "limit": 1,
+            "countrycodes": "in"
+        })
+
+        url = f"https://nominatim.openstreetmap.org/search?{params}"
+
+        request = Request(
+            url,
+            headers={
+                "User-Agent": "Civic360/1.0",
+                "Accept": "application/json"
+            }
+        )
+
+        with urlopen(request, timeout=10) as response:
+            results = json.loads(response.read().decode("utf-8"))
+
+        if not results:
+            return None, None
+
+        return float(results[0]["lat"]), float(results[0]["lon"])
+
+    except Exception as exc:
+        print(f"Geocoding failed: {exc}")
+        return None, None
 def run_ai_classification(description: str) -> dict:
     """
     Calls Developer 3's ai_model.py.
@@ -195,10 +266,18 @@ def get_stats():
 def classify_only(payload: ClassifyRequest):
     """Lets the frontend or team test the AI without saving a complaint."""
     return run_ai_classification(payload.description)
-@app.post("/complaints/{complaint_id}/feedback")
+
 
 @app.post("/complaints", status_code=201)
 def submit_complaint(payload: ComplaintCreate):
+    # Convert manual address into coordinates when provided.
+    if payload.latitude is not None and payload.longitude is not None:
+      latitude = payload.latitude
+      longitude = payload.longitude
+    else:
+      latitude = None
+      longitude = None
+    
     # Ask the AI module to suggest category and priority.
     ai_result = run_ai_classification(payload.description)
 
@@ -209,8 +288,8 @@ def submit_complaint(payload: ComplaintCreate):
         "complaint_id": "CIV-" + uuid4().hex[:8].upper(),
         "description": payload.description,
         "language": payload.language,
-        "latitude": payload.latitude,
-        "longitude": payload.longitude,
+        "latitude": latitude,
+        "longitude": longitude,
         "manual_location": payload.manual_location,
         "image_url": payload.image_url,
         "category": ai_result["category"],
