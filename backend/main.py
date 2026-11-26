@@ -1,251 +1,126 @@
-from datetime import datetime, timezone
-from uuid import uuid4
-from typing import Literal
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-
+from uuid import uuid4
+from datetime import datetime, timezone
 import database
+from ai_model import classify
 
-app = FastAPI(
-    title="Civic360 API",
-    description="Backend API for citizen complaints and the authority dashboard.",
-    version="1.0.0"
-)
+app=FastAPI(title="Civic360 API",version="2.0")
+app.add_middleware(CORSMiddleware,allow_origins=["*"],allow_credentials=False,allow_methods=["*"],allow_headers=["*"])
 
-# Allows the separate citizen and admin websites to call this API during development.
-# For a real deployment, replace "*" with your deployed website domains.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+USERS={
+ "citizen@civic360.com":{"password":"citizen123","role":"citizen","user_id":"C360-CIT-1001","name":"Demo Citizen"},
+ "admin@civic360.com":{"password":"admin123","role":"authority","user_id":"C360-ADM-0001","name":"Civic Authority Admin"}
+}
 
-ComplaintStatus = Literal["Pending", "In Progress", "Resolved"]
-Priority = Literal["High", "Medium", "Low"]
-Category = Literal["Water Quality", "Drainage", "Garbage", "Road Damage"]
+class Login(BaseModel):
+    identifier:str
+    password:str
+    role:str
 
+class Translation(BaseModel):
+    text:str
+    language:str
 
 class ComplaintCreate(BaseModel):
-    description: str = Field(min_length=3, max_length=2000)
-    language: str = "English"
-    latitude: float | None = None
-    longitude: float | None = None
-    manual_location: str | None = None
-    image_url: str | None = None
-    
+    user_id:str
+    description:str=Field(min_length=2,max_length=2000)
+    language:str="English"
+    latitude:float|None=None
+    longitude:float|None=None
+    category:str|None=None
 
-class ComplaintStatusUpdate(BaseModel):
-    status: ComplaintStatus
-
-
-class ClassifyRequest(BaseModel):
-    description: str = Field(min_length=3, max_length=2000)
-class FeedbackCreate(BaseModel):
-    rating: int = Field(ge=1, le=5)
-    review: str = Field(min_length=1, max_length=1000)
-   
-
-
-def run_ai_classification(description: str) -> dict:
-    """
-    Calls Developer 3's ai_model.py.
-    Expected function: classify_complaint(text)
-    Expected keys: category, priority, confidence.
-    """
-    try:
-        from ai_model import classify_complaint
-    except ImportError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail="AI module is not connected yet. Add ai_model.py and its trained models."
-        ) from exc
-
-    try:
-        result = classify_complaint(description)
-        return {
-            "category": result["category"],
-            "priority": result["priority"],
-            "confidence": float(result["confidence"])
-        }
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"AI classification failed: {exc}") from exc
-
-
-def assign_departments(description: str) -> list[dict]:
-    """Assign relevant departments based on complaint keywords."""
-
-    text = description.lower()
-    departments = []
-
-    def add_department(name, task):
-        departments.append({
-            "department": name,
-            "task": task,
-            "status": "Pending"
-        })
-
-    # Water pipeline issues
-    if any(word in text for word in [
-        "pipeline leak", "pipe leak", "water leak",
-        "burst pipe", "water leakage"
-    ]):
-        add_department(
-            "Water Supply",
-            "Inspect and repair the leaking water pipeline."
-        )
-
-    # Sewage and drainage issues
-    if any(word in text for word in [
-        "sewage", "sewer", "drainage", "drain overflow"
-    ]):
-        add_department(
-            "Sewerage",
-            "Inspect and resolve the sewage or drainage issue."
-        )
-
-    # Road damage
-    if any(word in text for word in [
-        "road damage", "damaged road", "pothole",
-        "broken road", "road repair"
-    ]):
-        add_department(
-            "Road Maintenance",
-            "Repair and restore the damaged road."
-        )
-
-    # Garbage issues
-    if any(word in text for word in [
-        "garbage", "waste", "rubbish", "litter"
-    ]):
-        add_department(
-            "Sanitation",
-            "Remove garbage and clean the affected area."
-        )
-
-    # Electrical issues
-    if any(word in text for word in [
-        "electricity", "power line", "exposed wire",
-        "electric pole"
-    ]):
-        add_department(
-            "Electricity",
-            "Inspect and resolve the electrical issue."
-        )
-
-    # Fallback
-    if not departments:
-        add_department(
-            "Municipal Administration",
-            "Review the complaint and assign the responsible department."
-        )
-
-    return departments
+class StatusUpdate(BaseModel):
+    status:str
+    authority_id:str
 
 @app.get("/")
-def home():
-    return {"message": "Welcome to Civic360 API", "docs": "/docs"}
-@app.get("/complaints")
-def list_complaints():
-    return {"complaints": database.get_all_complaints()}
+def home(): return {"message":"Civic360 API v2","docs":"/docs"}
 
+@app.post("/auth/login")
+def login(p:Login):
+    u=USERS.get(p.identifier.lower())
+    if not u or u["password"]!=p.password or u["role"]!=p.role:
+        raise HTTPException(401,"Invalid credentials or selected role.")
+    return {"user":{"user_id":u["user_id"],"name":u["name"],"role":u["role"]}}
 
-@app.get("/complaints/{complaint_id}")
-def complaint_details(complaint_id: str):
-    complaint = database.get_complaint(complaint_id)
-    if complaint is None:
-        raise HTTPException(status_code=404, detail="Complaint not found")
-    return {"complaint": complaint}
+# Demo translation layer. For production, replace/extend this endpoint with a verified multilingual translation model/API.
+WORD_MAP={
+ "gadda":"pothole","gaddha":"pothole","gaddhe":"potholes",
+ "sadak":"road","sadak mein":"on the road","pani":"water","paani":"water",
+ "ganda":"dirty","gandi":"dirty","gandha":"dirty","kachra":"garbage",
+ "naali":"drain","nali":"drain","band":"blocked","toota":"broken",
+ "rashta":"road","badbu":"bad smell","paani aa raha hai":"water is coming",
+ "paani nahi aa raha":"water is not coming"
+}
+PHRASES=sorted(WORD_MAP.items(),key=lambda x:len(x[0]),reverse=True)
 
+def normalize_to_english(text,language):
+    if language=="English": return text, "Original English statement retained."
+    result=text.lower()
+    for src,dst in PHRASES:
+        result=result.replace(src,dst)
+    # Preserve a clear statement even when only some words are translated.
+    return result.capitalize(), "Demo multilingual normalisation: common civic terms are translated into understandable English. Connect a production translation model for full-sentence translation."
 
-@app.patch("/complaints/{complaint_id}/status")
-def change_status(complaint_id: str, payload: ComplaintStatusUpdate):
-    updated = database.update_complaint_status(complaint_id, payload.status)
-    if updated is None:
-        raise HTTPException(status_code=404, detail="Complaint not found")
-    return {"message": "Status updated", "complaint": updated}
+@app.post("/translate")
+def translate(p:Translation):
+    english,note=normalize_to_english(p.text,p.language)
+    return {"english_statement":english,"note":note}
 
-
-@app.get("/stats")
-def get_stats():
-    complaints = database.get_all_complaints()
-    total = len(complaints)
-    by_status = {
-        status: sum(1 for item in complaints if item.get("status") == status)
-        for status in ["Pending", "In Progress", "Resolved"]
+@app.post("/complaints",status_code=201)
+def create_complaint(p:ComplaintCreate):
+    if not any(u["user_id"]==p.user_id and u["role"]=="citizen" for u in USERS.values()):
+        raise HTTPException(401,"Unknown citizen ID.")
+    english,_=normalize_to_english(p.description,p.language)
+    ai=classify(english)
+    category=p.category or ai["category"]
+    item={
+      "complaint_id":"CIV-"+uuid4().hex[:8].upper(),
+      "user_id":p.user_id,
+      "description":p.description,
+      "english_statement":english,
+      "language":p.language,
+      "latitude":p.latitude,
+      "longitude":p.longitude,
+      "category":category,
+      "categories":ai.get("categories", [category]),
+      "primary_category":ai.get("primary_category", category),
+      "related_categories":ai.get("related_categories", []),
+      "ai_reason":ai.get("reason", ""),
+      "priority":ai["priority"],
+      "confidence":ai["confidence"],
+      "status":"Pending",
+      "working_status":"Awaiting authority review",
+      "created_at":datetime.now(timezone.utc).isoformat(),
+      "updated_at":datetime.now(timezone.utc).isoformat()
     }
-    by_category = {
-        category: sum(1 for item in complaints if item.get("category") == category)
-        for category in ["Water Quality", "Drainage", "Garbage", "Road Damage"]
-    }
-    return {
-        "total": total,
-        "pending": by_status["Pending"],
-        "in_progress": by_status["In Progress"],
-        "resolved": by_status["Resolved"],
-        "by_status": by_status,
-        "by_category": by_category
-    }
+    database.create(item)
+    return {"message":"Complaint submitted successfully","complaint":item}
 
+@app.get("/complaints/user/{user_id}")
+def user_complaints(user_id:str):
+    return {"complaints":[x for x in database.all() if x.get("user_id")==user_id]}
 
-@app.post("/classify")
-def classify_only(payload: ClassifyRequest):
-    """Lets the frontend or team test the AI without saving a complaint."""
-    return run_ai_classification(payload.description)
-@app.post("/complaints/{complaint_id}/feedback")
+@app.get("/complaints/{cid}")
+def complaint(cid:str):
+    item=database.get(cid)
+    if not item: raise HTTPException(404,"Complaint not found")
+    return {"complaint":item}
 
-@app.post("/complaints", status_code=201)
-def submit_complaint(payload: ComplaintCreate):
-    # Ask the AI module to suggest category and priority.
-    ai_result = run_ai_classification(payload.description)
+@app.get("/admin/complaints")
+def admin_complaints(status:str|None=None,priority:str|None=None,category:str|None=None):
+    items=database.all()
+    if status: items=[x for x in items if x.get("status")==status]
+    if priority: items=[x for x in items if x.get("priority")==priority]
+    if category: items=[x for x in items if category in x.get("categories", [x.get("category")]) or x.get("category")==category]
+    return {"complaints":list(reversed(items))}
 
-    # Assign responsible departments.
-    department_tasks = assign_departments(payload.description)
-
-    complaint = {
-        "complaint_id": "CIV-" + uuid4().hex[:8].upper(),
-        "description": payload.description,
-        "language": payload.language,
-        "latitude": payload.latitude,
-        "longitude": payload.longitude,
-        "manual_location": payload.manual_location,
-        "image_url": payload.image_url,
-        "category": ai_result["category"],
-        "priority": ai_result["priority"],
-        "confidence": ai_result["confidence"],
-        "status": "Pending",
-        "department_tasks": department_tasks,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-
-    database.create_complaint(complaint)
-
-    return {
-        "message": "Complaint submitted successfully",
-        "complaint": complaint
-    }
-
-@app.post("/complaints/{complaint_id}/feedback")
-def submit_complaint_feedback(
-    complaint_id: str,
-    payload: FeedbackCreate
-):
-    try:
-        complaint = database.submit_feedback(
-            complaint_id,
-            payload.rating,
-            payload.review
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-
-    if complaint is None:
-        raise HTTPException(status_code=404, detail="Complaint not found")
-
-    return {
-        "message": "Feedback submitted successfully",
-        "feedback": complaint["feedback"]
-    }
+@app.patch("/admin/complaints/{cid}/status")
+def admin_status(cid:str,p:StatusUpdate):
+    if p.authority_id!="C360-ADM-0001": raise HTTPException(403,"Authority credentials required.")
+    if p.status not in ["Pending","In Progress","Resolved"]: raise HTTPException(400,"Invalid status.")
+    item=database.update_status(cid,p.status)
+    if not item: raise HTTPException(404,"Complaint not found")
+    return {"message":"Status updated","complaint":item}

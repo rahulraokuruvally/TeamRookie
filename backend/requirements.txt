@@ -1,7 +1,5 @@
 fastapi
 uvicorn[standard]
 pydantic
-firebase-admin
-scikit-learn
-pandas
 joblib
+scikit-learn
